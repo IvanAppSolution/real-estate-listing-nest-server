@@ -78,7 +78,7 @@ export class ListController{
   }
 
   @Delete(':id')
-  deleteList(@Param('id', ParseIntPipe) id: string){
+  deleteList(@Param('id', ParseUUIDPipe) id: string){
     return this.listService.deleteList(id);
   }
 
