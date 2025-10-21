@@ -20,10 +20,12 @@ export class AuthService {
             const isPasswordValid = await bcrypt.compare(password, user.password);
 
             if (isPasswordValid) {
-                const payload = { userId: user.id, email: user.email};
+                const payload = { id: user.id, email: user.email, username: user.username, role: user.role};
+                // Destructure to remove unnecessary field
+                const { password: _, createdAt: _1, updatedAt: _2, deleteAt: _3, ...result } = user;
                 return {
                     token: await this.jwtService.signAsync(payload),
-                    user: user
+                    user: result
                 };
             } else {
                 throw new UnauthorizedException();

@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [UserModule,  AuthModule, ListModule,
@@ -27,7 +28,8 @@ import { AuthGuard } from './auth/auth.guard';
       autoLoadEntities: true,
       synchronize: true,
     } as TypeOrmModuleOptions)
-  })
+  }),
+  CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService,
