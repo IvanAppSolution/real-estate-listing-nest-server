@@ -11,13 +11,7 @@ export class ListController{
 
   @Get() 
   getLists(@Req() request: AuthRequest){
-    const user = request.user;
-    if (user?.role === 'admin') {
-      return this.listService.getAllList();
-    } else {
-      throw new UnauthorizedException
-    }
-    
+    return this.listService.getAllList();    
   }
   
   @Get('myListings') 
@@ -78,7 +72,7 @@ export class ListController{
   }
 
   @Delete(':id')
-  deleteList(@Param('id', ParseIntPipe) id: string){
+  deleteList(@Param('id', ParseUUIDPipe) id: string){
     return this.listService.deleteList(id);
   }
 

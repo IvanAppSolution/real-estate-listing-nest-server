@@ -29,6 +29,9 @@ importers:
       '@nestjs/typeorm':
         specifier: ^11.0.0
         version: 11.0.0(@nestjs/common@11.1.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.6)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.27(pg@8.16.3)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@22.18.10)(typescript@5.9.3)))
+      '@netlify/functions':
+        specifier: ^5.0.0
+        version: 5.0.0
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.2
@@ -41,6 +44,9 @@ importers:
       cloudinary:
         specifier: ^2.7.0
         version: 2.7.0
+      express:
+        specifier: ^5.1.0
+        version: 5.1.0
       glob:
         specifier: ^11.0.3
         version: 11.0.3
@@ -56,6 +62,9 @@ importers:
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
+      serverless-http:
+        specifier: ^4.0.0
+        version: 4.0.0
       streamifier:
         specifier: ^0.1.1
         version: 0.1.1
@@ -93,6 +102,9 @@ importers:
       '@types/node':
         specifier: ^22.18.10
         version: 22.18.10
+      '@types/serverless':
+        specifier: ^3.12.27
+        version: 3.12.27
       '@types/streamifier':
         specifier: ^0.1.2
         version: 0.1.2
@@ -792,6 +804,14 @@ packages:
       rxjs: ^7.2.0
       typeorm: ^0.3.0
 
+  '@netlify/functions@5.0.0':
+    resolution: {integrity: sha512-gyKzl+P5SPp6P4iqykwPagSy7ODgRoQqi9TkjFJjM74FVJgxdiBQoLAmz+Pjl7kE5avJWtIvlQ+akAFaChekQQ==}
+    engines: {node: '>=18.0.0'}
+
+  '@netlify/types@2.1.0':
+    resolution: {integrity: sha512-ktUb5d58pt1lQGXO5E9S0F1ljM0g+CoQuGTVII0IxBc0apmPq5RI0o3OWLY7U3ZERRiYTg5UfjiMihBEzuZsuw==}
+    engines: {node: ^18.14.0 || >=20}
+
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
@@ -947,6 +967,9 @@ packages:
 
   '@types/serve-static@1.15.9':
     resolution: {integrity: sha512-dOTIuqpWLyl3BBXU3maNQsS4A3zuuoYRNIvYSxxhebPfXg2mzWQEPne/nlJ37yOse6uGgR386uTpdsx4D0QZWA==}
+
+  '@types/serverless@3.12.27':
+    resolution: {integrity: sha512-3lKSUf+QO3x55isgqkeTNPbhnji7k21yKYeBiegfWrLtsq7U+6i8UBEr08gl8Ihdee3Q1A5Ik9A7ISIVV6z5jA==}
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
@@ -2854,6 +2877,10 @@ packages:
     resolution: {integrity: sha512-61g9pCh0Vnh7IutZjtLGGpTA355+OPn2TyDv/6ivP2h/AdAVX9azsoxmg2/M6nZeQZNYBEwIcsne1mJd9oQItQ==}
     engines: {node: '>= 18'}
 
+  serverless-http@4.0.0:
+    resolution: {integrity: sha512-KKl9h1+VApX9y2vHsVMogf906UXBwO3FDYiWPzqS0mCjEEx4Sx91JrssbWA7RN43HBuxrtoh8MkocZPvjyGnLg==}
+    engines: {node: '>=12.0'}
+
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -4227,6 +4254,12 @@ snapshots:
       rxjs: 7.8.2
       typeorm: 0.3.27(pg@8.16.3)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@22.18.10)(typescript@5.9.3))
 
+  '@netlify/functions@5.0.0':
+    dependencies:
+      '@netlify/types': 2.1.0
+
+  '@netlify/types@2.1.0': {}
+
   '@noble/hashes@1.8.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -4404,6 +4437,8 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/node': 22.18.10
       '@types/send': 0.17.5
+
+  '@types/serverless@3.12.27': {}
 
   '@types/stack-utils@2.0.3': {}
 
@@ -6496,6 +6531,8 @@ snapshots:
       send: 1.2.0
     transitivePeerDependencies:
       - supports-color
+
+  serverless-http@4.0.0: {}
 
   set-function-length@1.2.2:
     dependencies:
