@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { List } from "./list.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ListDto } from "./dto/list.dto";
+import { CreateListDto, UpdateListDto } from "./dto/list.dto";
 // import { Profile } from "src/profile/profile.entity";
 
 @Injectable()
@@ -11,8 +11,6 @@ export class ListService{
     constructor(
         @InjectRepository(List)
         private listRepository: Repository<List>,
-        // @InjectRepository(Profile)
-        // private profileRepository: Repository<Profile>
     ){}
 
     async getAllList() {
@@ -23,23 +21,23 @@ export class ListService{
         
     }
 
-    public async createList(listDto: ListDto, userId: string){
-        //Create list Object
-        listDto.userId = userId;
+    public async createList(listDto: CreateListDto){
         const list = this.listRepository.create(listDto);
 
         //Save the list object
-        await this.listRepository.save(list);
+        const result = await this.listRepository.save(list);
         return {
-            success: true
+            success: true,
+            id: result.id
         }
     }
 
-    public async updateList(id: string, listDto: ListDto){
+    public async updateList(id: string, list: UpdateListDto){
         //Update list Object
-        const list = await this.listRepository.findOneBy({id});
-        if (list) {
-            await this.listRepository.update(id, listDto);
+        const found = await this.listRepository.findOneBy({id});
+        // console.log('updateList found list: ', found)
+        if (found) {
+            await this.listRepository.update(id, list);
             return {
                 success: true
             }
@@ -67,6 +65,13 @@ export class ListService{
         return {
             success: true,
             data: await this.listRepository.findOneBy({ id })
+        } 
+    }
+
+    public async findListByUserId(userId: string){
+        return {
+            success: true,
+            data: await this.listRepository.findBy({ userId })
         } 
     }
 }

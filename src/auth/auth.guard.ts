@@ -29,13 +29,7 @@ export class AuthGuard implements CanActivate {
     private jwtService: JwtService, 
     private readonly configService: ConfigService,
     private reflector: Reflector) {}
-
-  @Public()
-  @Get()
-  findAll() {
-    return ['/api/user/register', '/api/auth/login'];
-  }
-
+  
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),

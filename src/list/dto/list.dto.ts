@@ -72,30 +72,47 @@ export class ContactDto {
  
 }
 
-export class ListDto {
+export class UserDto {
+    @IsString()
+    id: string;
+
+    @IsOptional()
+    @IsString()
+    username?: string;
+
+    @IsOptional()
+    @IsEmail()
+    email?: string;
+
+    @IsOptional()
+    @IsString()
+    role?: string;
+}
+
+export class CreateListDto {
     @IsOptional()
     @IsString()
     @MaxLength(100)
     code?: string;
 
+    @IsOptional()
     @IsNotEmpty()
-    @IsUUID('4')
-    userId: string;
+    userId?: string;
 
-    @IsNotEmpty()
-    @IsString()
+    @IsOptional()
     @MaxLength(255)
-    name: string;
+    name?: string;
 
     @IsOptional()
     @IsString()
     description?: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
     @IsPositive()
     @Min(0)
-    price: number;
+    @Type(() => Number)
+    price?: number;
 
     @IsOptional()
     @IsArray()
@@ -165,6 +182,13 @@ export class ListDto {
     @Min(0)
     @Max(5)
     rating?: number;
+
+    // @IsOptional()
+    @IsObject()
+    @ValidateNested()
+    @Type(() => UserDto)
+    user?: UserDto;
+
 }
 
 export class UpdateListDto {
@@ -269,6 +293,7 @@ export class ListResponseDto {
     images?: string[];
     address?: AddressDto;
     contact?: ContactDto;
+    user?: UserDto;
     numBedroom?: number;
     numBathroom?: number;
     garage?: number;
