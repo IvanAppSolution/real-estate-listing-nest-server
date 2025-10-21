@@ -21,6 +21,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
 }
   app.enableCors(corsOption);
-  await app.listen(4000);
+  const port: number = parseInt(configService.get('PORT') || '4000')
+  await app.listen(port);
 }
 bootstrap();

@@ -11,13 +11,7 @@ export class ListController{
 
   @Get() 
   getLists(@Req() request: AuthRequest){
-    const user = request.user;
-    if (user?.role === 'admin') {
-      return this.listService.getAllList();
-    } else {
-      throw new UnauthorizedException
-    }
-    
+    return this.listService.getAllList();    
   }
   
   @Get('myListings') 
