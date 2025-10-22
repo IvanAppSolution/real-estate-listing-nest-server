@@ -16,10 +16,4 @@ export class UserDto{
     @MinLength(6)
     @MaxLength(100)
     password: string;
-
-    @IsOptional()
-    role: string;
-
-    // @IsOptional()
-    // profile: CreateProfileDto | null;
 }

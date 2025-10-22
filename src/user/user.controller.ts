@@ -10,6 +10,7 @@ import { AllowPublic } from 'src/auth/decorators/allow-public.decorator';
 export class UserController{
     constructor(private userService: UserService){}
 
+   @AllowPublic() 
    @Get() 
    getUsers()
    {
