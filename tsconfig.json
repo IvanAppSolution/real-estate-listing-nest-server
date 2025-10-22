@@ -17,8 +17,11 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "rootDir": "./",
+    "moduleResolution": "node",
+    "strict": false
   },
-  "include": ["src/**/*", "netlify/**/*"],
-  "exclude": ["node_modules", "dist", "test"]
+  "include": ["src/**/*", "netlify/functions/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
