@@ -1,11 +1,17 @@
 [build]
-  command = "npm run build"
+  command = "npm run netlify:build"
   functions = "netlify/functions"
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+  NPM_FLAGS = "--legacy-peer-deps"
+
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@nestjs/microservices", "@nestjs/websockets"]
+  external_node_modules = ["@nestjs/microservices", "@nestjs/websockets", "class-transformer", "class-validator", "pg", "pg-native"]
+  included_files = ["dist/**"]
 
 [[redirects]]
   from = "/api/*"
@@ -19,7 +25,10 @@
   status = 200
 
 [dev]
-  command = "npm run start:dev"
+  command = "npm run dev"
   port = 3000
   targetPort = 3000
   autoLaunch = false
+
+[functions]
+  directory = "netlify/functions"
