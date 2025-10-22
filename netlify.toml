@@ -9,6 +9,7 @@
   NPM_FLAGS = "--legacy-peer-deps"
 
 [functions]
+  directory = "netlify/functions"
   node_bundler = "esbuild"
   external_node_modules = ["@nestjs/microservices", "@nestjs/websockets", "class-transformer", "class-validator", "pg", "pg-native"]
   included_files = ["dist/**"]
@@ -29,6 +30,3 @@
   port = 3000
   targetPort = 3000
   autoLaunch = false
-
-[functions]
-  directory = "netlify/functions"
