@@ -30,14 +30,13 @@
     "rxjs": "^7.8.2",
     "serverless-http": "^3.2.0",
     "streamifier": "^0.1.1",
-    "typeorm": "^0.3.27"    
+    "typeorm": "^0.3.27"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.12",
     "@types/node": "^20.17.10",
-    "@types/serverless": "^3.2.0",
     "typescript": "^5.9.3"
   },
   "engines": {
