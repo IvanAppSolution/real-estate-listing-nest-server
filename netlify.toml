@@ -11,7 +11,8 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["@nestjs/microservices", "@nestjs/websockets", "class-transformer", "class-validator", "pg", "pg-native"]
+  # Do not externalize pg so it's bundled automatically
+  external_node_modules = ["@nestjs/microservices", "@nestjs/websockets", "class-transformer", "class-validator"]
   included_files = ["dist/**"]
 
 [[redirects]]

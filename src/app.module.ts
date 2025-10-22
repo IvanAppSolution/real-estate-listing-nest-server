@@ -30,7 +30,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
         ssl: {
           rejectUnauthorized: false, // Disables strict certificate validation
         },
-      } : {},
+      } : {}
     } as TypeOrmModuleOptions)
   }),
   CloudinaryModule
