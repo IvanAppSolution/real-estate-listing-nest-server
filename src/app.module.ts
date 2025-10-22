@@ -26,6 +26,11 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       autoLoadEntities: true,
       synchronize: true,
       ssl: configService.get('NODE_ENV') === "production",
+      extra: configService.get('NODE_ENV') === "production" ? {
+        ssl: {
+          rejectUnauthorized: false, // Disables strict certificate validation
+        },
+      } : {},
     } as TypeOrmModuleOptions)
   }),
   CloudinaryModule
