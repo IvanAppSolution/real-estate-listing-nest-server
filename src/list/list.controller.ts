@@ -4,11 +4,13 @@ import { CreateListDto, UpdateListDto } from "./dto/list.dto";
 import type { AuthRequest } from 'src/types';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { AllowPublic } from 'src/auth/decorators/allow-public.decorator';
 
 @Controller('list')
 export class ListController{
   constructor(private listService: ListService, private readonly cloudinaryService: CloudinaryService){}
 
+  @AllowPublic()
   @Get() 
   getLists(@Req() request: AuthRequest){
     return this.listService.getAllList();    

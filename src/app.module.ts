@@ -25,19 +25,13 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       database: configService.get('DB_NAME'),
       autoLoadEntities: true,
       synchronize: true,
-      ssl: true,
-      extra: {
-        ssl: {
-          rejectUnauthorized: false, // Disables strict certificate validation
-        },
-      },
+      ssl: configService.get('NODE_ENV') === "production",
     } as TypeOrmModuleOptions)
   }),
   CloudinaryModule
   ],
   controllers: [],
-  providers: [
-  {
+  providers: [  {
       provide: APP_GUARD,
       useClass: AuthGuard,
   }],
