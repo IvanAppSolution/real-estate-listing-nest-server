@@ -1,8 +1,6 @@
-
 import {
   CanActivate,
   ExecutionContext,
-  Get,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -27,16 +25,22 @@ export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService, 
     private readonly configService: ConfigService,
-    private reflector: Reflector) {}
+    private reflector: Reflector
+  ) {
+    // Ensure reflector is injected
+    if (!this.reflector) {
+      console.error('❌ Reflector not injected in AuthGuard');
+    }
+  }
   
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    // Add safety check for reflector
+    const isPublic = this.reflector?.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
-    ]);
+    ]) ?? false;
 
     if (isPublic) {
-      // 💡 See this condition
       return true;
     }
     
@@ -48,19 +52,14 @@ export class AuthGuard implements CanActivate {
     }
     
     try {
-      // Verify and decode the JWT token
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: this.configService.get<string>('JWT_SECRET')
       });
       
-      // Attach the user payload to the request object
-      // This makes the user data available in your controllers
       request['user'] = payload;
       
       return true;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      // Token is invalid or expired
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
@@ -72,7 +71,6 @@ export class AuthGuard implements CanActivate {
       return undefined;
     }
     
-    // Check if header starts with "Bearer "
     const [type, token] = authHeader.split(' ');
     
     return type === 'Bearer' ? token : undefined;
