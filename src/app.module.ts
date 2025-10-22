@@ -25,6 +25,12 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       database: configService.get('DB_NAME'),
       autoLoadEntities: true,
       synchronize: true,
+      ssl: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false, // Disables strict certificate validation
+        },
+      },
     } as TypeOrmModuleOptions)
   }),
   CloudinaryModule
