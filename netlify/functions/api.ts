@@ -3,7 +3,7 @@ import { AppModule } from '../../src/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
+import express, { Express } from 'express';
 import { Handler, HandlerContext, HandlerEvent } from '@netlify/functions';
 import serverless from 'serverless-http';
 
@@ -14,7 +14,8 @@ async function bootstrapServer() {
     return cachedApp;
   }
 
-  const expressApp = express();
+  const expressApp: Express = express();
+  
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressApp),
@@ -51,14 +52,13 @@ async function bootstrapServer() {
 
   app.enableCors(corsOption);
 
+  // Initialize the NestJS app
   await app.init();
 
-  // Wrap with serverless-http
-  cachedApp = serverless(expressApp, {
-    binary: ['image/*', 'application/pdf'],
-  });
-
   console.log('✅ NestJS app initialized for serverless');
+
+  // Wrap the Express app (NOT the NestJS app) with serverless-http
+  cachedApp = serverless(expressApp);
 
   return cachedApp;
 }
@@ -83,7 +83,7 @@ export const handler: Handler = async (
       body: JSON.stringify({
         success: false,
         message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
       }),
     };
   }
