@@ -11,16 +11,22 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  # Do not externalize pg so it's bundled automatically
+  # Include packages that are dynamically required by Nest
   external_node_modules = [
     "class-validator",
     "class-transformer",
-    "pg",
-    "pg-pool",
-    "pg-types",
-    "pg-protocol"
+    "@nestjs/microservices",
+    "@nestjs/websockets"
   ]
-  included_files = ["dist/**"]
+  included_files = [
+    "node_modules/class-validator/**",
+    "node_modules/class-transformer/**",
+    "node_modules/pg/**",
+    "node_modules/pg-pool/**",
+    "node_modules/pg-types/**",
+    "node_modules/pg-protocol/**",
+    "dist/**"
+  ]
 
 [[redirects]]
   from = "/api/*"
