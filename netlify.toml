@@ -10,23 +10,7 @@
 
 [functions]
   directory = "netlify/functions"
-  node_bundler = "esbuild"
-  # Include packages that are dynamically required by Nest
-  external_node_modules = [
-    "class-validator",
-    "class-transformer",
-    "@nestjs/microservices",
-    "@nestjs/websockets"
-  ]
-  included_files = [
-    "node_modules/class-validator/**",
-    "node_modules/class-transformer/**",
-    "node_modules/pg/**",
-    "node_modules/pg-pool/**",
-    "node_modules/pg-types/**",
-    "node_modules/pg-protocol/**",
-    "dist/**"
-  ]
+  node_bundler = "nft"
 
 [[redirects]]
   from = "/api/*"
