@@ -11,7 +11,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { REQUEST_USER_KEY } from 'src/constants/constants';
 
 interface JwtPayload {
   sub: string;
@@ -56,7 +55,7 @@ export class AuthGuard implements CanActivate {
       
       // Attach the user payload to the request object
       // This makes the user data available in your controllers
-      request[REQUEST_USER_KEY] = payload;
+      request['user'] = payload;
       
       return true;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

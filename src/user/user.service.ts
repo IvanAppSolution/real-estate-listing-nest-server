@@ -40,7 +40,7 @@ export class UserService{
             const { password, ...result } = user;
             
             return { 
-                token: await this.jwtService.signAsync(payload,{expiresIn: '7d'}),
+                token: await this.jwtService.signAsync(payload,{expiresIn: '3d'}),
                 user: result,
                 success: true
             }
