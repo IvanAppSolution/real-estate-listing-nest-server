@@ -12,7 +12,8 @@ export class ListController{
 
   @AllowPublic()
   @Get() 
-  getLists(@Req() request: AuthRequest){
+  getLists(){
+    console.log('getLists()')
     return this.listService.getAllList();    
   }
   
