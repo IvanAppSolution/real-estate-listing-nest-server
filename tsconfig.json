@@ -19,6 +19,6 @@
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true
   },
-  "include": ["src/**/*", "netlify/functions/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*", "netlify/**/*"],
+  "exclude": ["node_modules", "dist", "test"]
 }

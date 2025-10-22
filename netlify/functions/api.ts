@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
-import { Handler } from '@netlify/functions';
+import { Handler, HandlerContext, HandlerEvent } from '@netlify/functions';
 import serverless from 'serverless-http';
 
 let cachedApp: any;
@@ -18,7 +18,11 @@ async function bootstrapServer() {
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressApp),
-    { logger: ['error', 'warn', 'log'] }
+    { 
+      logger: process.env.NODE_ENV === 'production' 
+        ? ['error', 'warn'] 
+        : ['error', 'warn', 'log', 'debug']
+    }
   );
 
   app.useGlobalPipes(
@@ -37,7 +41,8 @@ async function bootstrapServer() {
   const corsOption = {
     origin: [
       configService.get('FRONTEND_URL') as string,      
-      'http://localhost:3000'
+      'http://localhost:3000',
+      /\.netlify\.app$/,
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -48,13 +53,38 @@ async function bootstrapServer() {
 
   await app.init();
 
-  cachedApp = serverless(expressApp);
+  // Wrap with serverless-http
+  cachedApp = serverless(expressApp, {
+    binary: ['image/*', 'application/pdf'],
+  });
+
+  console.log('✅ NestJS app initialized for serverless');
+
   return cachedApp;
 }
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (
+  event: HandlerEvent,
+  context: HandlerContext
+) => {
+  // Prevent Lambda from waiting for empty event loop
   context.callbackWaitsForEmptyEventLoop = false;
   
-  const app = await bootstrapServer();
-  return app(event, context);
+  try {
+    const app = await bootstrapServer();
+    return await app(event, context);
+  } catch (error) {
+    console.error('❌ Serverless handler error:', error);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      }),
+    };
+  }
 };
