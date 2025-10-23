@@ -1,11 +1,7 @@
 import { Body, Controller, Get, Param, Post, ParseIntPipe, Delete, Put } from '@nestjs/common';
 import { UserService } from "./user.service";
 import { UserDto } from "./dto/user.dto";
-import { AllowPublic } from 'src/auth/decorators/allow-public.decorator';
-
-
-//http://localhost:3000/user/1
-
+import { AllowPublic } from '../auth/decorators/allow-public.decorator';
 @Controller('user')
 export class UserController{
     constructor(private userService: UserService){}

@@ -1,10 +1,8 @@
 import { Injectable } from "@nestjs/common";
-// import { AuthService } from "src/auth/auth.service";
 import { Repository } from "typeorm";
 import { List } from "./list.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateListDto, UpdateListDto } from "./dto/list.dto";
-// import { Profile } from "src/profile/profile.entity";
 
 @Injectable()
 export class ListService{

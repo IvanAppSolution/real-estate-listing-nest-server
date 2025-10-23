@@ -8,6 +8,7 @@
     "dev": "nest start --watch",
     "start:prod": "node dist/src/main.js",
     "netlify:build": "npm run build",
+    "test:local": "npm run build && node dist/test-local.js",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "@types/express": "^5.0.3",
     "@types/multer": "^1.4.12",
     "@types/node": "^20.17.10",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "engines": {

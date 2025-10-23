@@ -1,6 +1,6 @@
 // import { Profile } from "src/profile/profile.entity";
 // import { Tweet } from "src/tweet/tweet.entity";
-import { List } from "src/list/list.entity";
+import { List } from "../list/list.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export enum UserRole {
