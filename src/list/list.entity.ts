@@ -1,6 +1,6 @@
 // import { Profile } from "src/profile/profile.entity";
 // import { Tweet } from "src/tweet/tweet.entity";
-import { User } from "src/user/user.entity";
+import { User } from "../user/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
  
 

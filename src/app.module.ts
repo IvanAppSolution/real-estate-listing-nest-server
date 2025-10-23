@@ -9,7 +9,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
-  imports: [UserModule,  AuthModule, ListModule,
+  imports: [AuthModule, UserModule,   ListModule, CloudinaryModule,
   ConfigModule.forRoot({
     isGlobal: true
   }),
@@ -32,8 +32,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
         },
       } : {}
     } as TypeOrmModuleOptions)
-  }),
-  CloudinaryModule
+  })  
   ],
   controllers: [],
   providers: [  {
