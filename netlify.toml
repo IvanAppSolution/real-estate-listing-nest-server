@@ -6,11 +6,13 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION = "10"
+  NODE_ENV = "production"
+  # Force npm instead of pnpm
+  NPM_FLAGS = ""
 
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  # Don't exclude dependencies - bundle everything
   included_files = ["dist/**"]
 
 [[redirects]]
