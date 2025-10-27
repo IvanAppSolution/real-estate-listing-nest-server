@@ -22,10 +22,11 @@
     "@netlify/functions": "^2.8.2",
     "@vendia/serverless-express": "^4.12.6",
     "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^11.5.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "cloudinary": "^2.7.0",
-    "express": "~4.21.1",
+    "express": "4.19.2",
     "multer": "1.4.5-lts.1",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
@@ -34,7 +35,8 @@
     "typeorm": "^0.3.27",
     "@nestjs/cli": "^11.0.10",
     "@types/bcryptjs": "^2.4.6",
-    "@types/express": "^4.17.21",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/express": "4.17.21",
     "@types/multer": "^1.4.12",
     "@types/node": "^20.17.10",
     "typescript": "^5.9.3",
@@ -48,6 +50,6 @@
     "npm": ">=10.0.0"
   },
   "overrides": {
-    "express": "~4.21.1"
+    "express": "4.19.2"
   }
 }
