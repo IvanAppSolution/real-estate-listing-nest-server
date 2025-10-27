@@ -25,7 +25,8 @@ export class AuthService {
                 const { password: _, createdAt: _1, updatedAt: _2, deleteAt: _3, ...result } = user;
                 return {
                     token: await this.jwtService.signAsync(payload),
-                    user: result
+                    user: result,
+                    success: true
                 };
             } else {
                 throw new UnauthorizedException();
