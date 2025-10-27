@@ -13,7 +13,10 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  included_files = ["dist/**"]
+  
+  # Tell esbuild to bundle all dependencies
+  [functions.api]
+    external_node_modules = []
 
 [[redirects]]
   from = "/api/*"
