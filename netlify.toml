@@ -1,6 +1,6 @@
 [build]
   command = "npm run netlify:build"
-  functions = "netlify/functions"
+  functions = "dist/netlify/functions"
   publish = "dist"
 
 [build.environment]
@@ -8,12 +8,8 @@
   NPM_VERSION = "10"
 
 [functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-  
-  # Exclude Node.js built-ins and large dependencies from bundling
-  [functions.api]
-    external_node_modules = ["express", "@nestjs/platform-express", "@nestjs/core", "@nestjs/common", "rxjs", "reflect-metadata", "typeorm", "pg"]
+  # Don't use any bundler - we're doing it manually
+  node_bundler = "none"
 
 [[redirects]]
   from = "/api/*"
