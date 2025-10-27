@@ -8,8 +8,7 @@
     "dev": "nest start --watch",
     "start:prod": "node dist/src/main.js",
     "netlify:build": "npm run build",
-    "test:local": "npm run build && node dist/test-local.js",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "netlify:dev": "netlify dev"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
@@ -30,15 +29,16 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "streamifier": "^0.1.1",
-    "typeorm": "^0.3.27"
+    "typeorm": "^0.3.27",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10",
-    "@types/express": "^4.17.24",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^4.17.21",
     "@types/multer": "^1.4.12",
     "@types/node": "^20.17.10",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "ts-node": "^10.9.2"
   },
   "engines": {
     "node": "20.x",
