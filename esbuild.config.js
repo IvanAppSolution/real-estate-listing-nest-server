@@ -31,8 +31,19 @@ esbuild.build({
     '.ts': 'ts',
   },
   tsconfig: 'tsconfig.json',
-}).then(() => {
+  logLevel: 'info',
+  metafile: true,
+}).then((result) => {
   console.log('✅ Function bundled successfully');
+  
+  // Log bundle size
+  if (result.metafile) {
+    const outputs = result.metafile.outputs;
+    for (const [file, data] of Object.entries(outputs)) {
+      const size = (data.bytes / 1024 / 1024).toFixed(2);
+      console.log(`📦 ${file}: ${size} MB`);
+    }
+  }
 }).catch((error) => {
   console.error('❌ Build failed:', error);
   process.exit(1);
