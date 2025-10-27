@@ -3,18 +3,18 @@ import { AppModule } from '../../src/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import express, { Express } from 'express';
+import express from 'express';
 import { Handler, HandlerContext, HandlerEvent } from '@netlify/functions';
-import serverless from 'serverless-http';
+import serverlessExpress from '@vendia/serverless-express';
 
-let cachedApp: any;
+let cachedServer: any;
 
 async function bootstrapServer() {
-  if (cachedApp) {
-    return cachedApp;
+  if (cachedServer) {
+    return cachedServer;
   }
 
-  const expressApp: Express = express();
+  const expressApp = express();
   
   const app = await NestFactory.create(
     AppModule,
@@ -34,15 +34,15 @@ async function bootstrapServer() {
     }),
   );
 
-  // Set base path for Netlify functions
   app.setGlobalPrefix('api');
 
   const configService = app.get(ConfigService);
   
   const corsOption = {
     origin: [
-      configService.get('FRONTEND_URL') as string,      
+      configService.get('FRONTEND_URL') || 'http://localhost:3000',      
       'http://localhost:3000',
+      'http://localhost:8888',
       /\.netlify\.app$/,
     ],
     credentials: true,
@@ -52,27 +52,25 @@ async function bootstrapServer() {
 
   app.enableCors(corsOption);
 
-  // Initialize the NestJS app
   await app.init();
 
   console.log('✅ NestJS app initialized for serverless');
 
-  // Wrap the Express app (NOT the NestJS app) with serverless-http
-  cachedApp = serverless(expressApp);
+  // Use serverless-express
+  cachedServer = serverlessExpress({ app: expressApp });
 
-  return cachedApp;
+  return cachedServer;
 }
 
 export const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
-  // Prevent Lambda from waiting for empty event loop
   context.callbackWaitsForEmptyEventLoop = false;
   
   try {
-    const app = await bootstrapServer();
-    return await app(event, context);
+    const server = await bootstrapServer();
+    return await server(event, context);
   } catch (error) {
     console.error('❌ Serverless handler error:', error);
     return {

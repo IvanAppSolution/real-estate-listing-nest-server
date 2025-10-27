@@ -6,11 +6,12 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION = "10"
-  NPM_FLAGS = "--legacy-peer-deps"
 
 [functions]
   directory = "netlify/functions"
-  node_bundler = "nft"
+  node_bundler = "esbuild"
+  # Don't exclude dependencies - bundle everything
+  included_files = ["dist/**"]
 
 [[redirects]]
   from = "/api/*"
