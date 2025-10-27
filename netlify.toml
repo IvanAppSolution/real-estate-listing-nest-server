@@ -6,17 +6,14 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION = "10"
-  NODE_ENV = "production"
-  # Force npm instead of pnpm
-  NPM_FLAGS = ""
 
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
   
-  # Tell esbuild to bundle all dependencies
+  # Exclude Node.js built-ins and large dependencies from bundling
   [functions.api]
-    external_node_modules = []
+    external_node_modules = ["express", "@nestjs/platform-express", "@nestjs/core", "@nestjs/common", "rxjs", "reflect-metadata", "typeorm", "pg"]
 
 [[redirects]]
   from = "/api/*"
