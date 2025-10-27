@@ -8,8 +8,8 @@
   NPM_VERSION = "10"
 
 [functions]
-  # Don't use any bundler - we're doing it manually
-  node_bundler = "none"
+  # Change this from "none" to "nft"
+  node_bundler = "nft"
 
 [[redirects]]
   from = "/api/*"
