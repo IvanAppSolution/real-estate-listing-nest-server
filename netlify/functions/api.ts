@@ -1,114 +1,66 @@
 import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from '../../src/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ExpressAdapter } from '@nestjs/platform-express';
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import serverlessExpress from '@vendia/serverless-express';
-import express from 'express';
 
-let cachedServer: any;
+const express = require('express');
 
-async function bootstrapServer() {
+let cachedServer: Handler;
+
+async function bootstrap(): Promise<Handler> {
   if (cachedServer) {
     return cachedServer;
   }
 
-  try {
-    // Create Express app first
-    const expressApp = express();
+  const expressApp = express();
+  const nestApp = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(expressApp),
+    {
+      logger: process.env.NODE_ENV === 'production' ? ['error', 'warn'] : ['log', 'error', 'warn', 'debug'],
+    }
+  );
 
-    // Create NestJS app with Express adapter
-    const app = await NestFactory.create(
-      AppModule,
-      new ExpressAdapter(expressApp),
-      {
-        logger: process.env.NODE_ENV === 'production' 
-          ? ['error', 'warn'] 
-          : ['error', 'warn', 'log'],
-        abortOnError: false,
-      }
-    );
-
-    // Global validation pipe
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    );
-
-    // API prefix
-    app.setGlobalPrefix('api');
-
-    // CORS configuration
-    const configService = app.get(ConfigService);
-    
-    app.enableCors({
-      origin: [
-        configService.get('FRONTEND_URL') || 'http://localhost:3000',
+  nestApp.setGlobalPrefix('api');
+  
+  const configService = nestApp.get(ConfigService);
+  nestApp.enableCors({
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        configService.get('FRONTEND_URL'),
         'http://localhost:3000',
         'http://localhost:8888',
-        /\.netlify\.app$/,
-      ],
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
-    });
+      ].filter(Boolean);
 
-    // Initialize NestJS app
-    await app.init();
+      if (!origin || allowedOrigins.includes(origin) || /\.netlify\.app$/.test(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  });
 
-    console.log('✅ NestJS app initialized for serverless');
+  nestApp.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-    // Wrap with serverless-express
-    cachedServer = serverlessExpress({ 
-      app: expressApp,
-      binaryMimeTypes: [
-        'application/octet-stream',
-        'image/*',
-        'multipart/form-data',
-      ]
-    });
+  // IMPORTANT: app.init() IS required for the app to be ready.
+  await nestApp.init();
 
-    return cachedServer;
-
-  } catch (error) {
-    console.error('❌ Failed to bootstrap server:', error);
-    throw error;
-  }
+  return serverlessExpress({ app: expressApp });
 }
 
 export const handler: Handler = async (
   event: HandlerEvent,
-  context: HandlerContext
+  context: HandlerContext,
 ) => {
-  // Prevent Lambda from waiting for empty event loop
-  context.callbackWaitsForEmptyEventLoop = false;
-
-  try {
-    const server = await bootstrapServer();
-    
-    // Call the serverless handler with event and context
-    return await server(event, context);
-    
-  } catch (error) {
-    console.error('❌ Handler error:', error);
-    
-    return {
-      statusCode: 500,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        success: false,
-        message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' 
-          ? (error as Error).message 
-          : undefined,
-      }),
-    };
+  // This pattern ensures bootstrap is only called once.
+  if (!cachedServer) {
+    cachedServer = await bootstrap();
   }
+  
+  // Pass the event and context to the cached server handler.
+  return cachedServer(event, context);
 };

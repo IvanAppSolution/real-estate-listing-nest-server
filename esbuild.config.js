@@ -1,4 +1,5 @@
 const esbuild = require('esbuild');
+const path = require('path');
 
 esbuild.build({
   entryPoints: ['netlify/functions/api.ts'],
@@ -27,12 +28,18 @@ esbuild.build({
     'cache-manager',
     'class-transformer/storage',
   ],
+  // Force resolve express from node_modules
+  alias: {
+    'express': path.resolve(__dirname, 'node_modules/express'),
+  },
   loader: {
     '.ts': 'ts',
   },
   tsconfig: 'tsconfig.json',
   logLevel: 'info',
   metafile: true,
+  mainFields: ['module', 'main'],
+  conditions: ['node'],
 }).then((result) => {
   console.log('✅ Function bundled successfully');
   
