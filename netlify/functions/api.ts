@@ -6,8 +6,6 @@ import type { Handler, HandlerEvent, HandlerContext, HandlerResponse } from '@ne
 import serverlessExpress from '@vendia/serverless-express';
 import express, { json, urlencoded } from 'express';
 
-// Initialize the server promise outside of the handler
-// This ensures bootstrap is only called once when the function is loaded.
 const serverPromise = bootstrap();
 
 async function bootstrap(): Promise<Handler> {
@@ -34,11 +32,17 @@ async function bootstrap(): Promise<Handler> {
     app: expressApp,
     eventSource: {
       getRequest: (event: HandlerEvent) => {
+        // ** THE FIX **
+        // The path from Netlify includes the function path, which we need to remove.
+        // Example: "/.netlify/functions/api/health" -> "/health"
+        // Since your global prefix is 'api', the final path passed to NestJS will be correct.
+        const path = event.path.replace('/.netlify/functions/api', '');
+
         return {
           method: event.httpMethod,
-          path: event.path,
+          path: path || '/', // Ensure path is at least "/"
           headers: event.headers,
-          body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
+          body: event.isBase64Encoded ? Buffer.from(event.body ?? '', 'base64') : event.body,
           remoteAddress: event.headers['x-forwarded-for'] || '127.0.0.1',
         };
       },
@@ -54,13 +58,10 @@ async function bootstrap(): Promise<Handler> {
   });
 }
 
-// Fix: Remove the Handler type from the left side and add explicit return type on the right side.
 export const handler = async (
   event: HandlerEvent,
   context: HandlerContext,
 ): Promise<HandlerResponse> => {
-  // ** THE DEBUGGING STEP **
-  // Log the incoming event to see its structure in Netlify logs.
   console.log('--- Handler Invoked ---');
   console.log('EVENT:', JSON.stringify(event, null, 2));
 
@@ -68,14 +69,12 @@ export const handler = async (
     const server = await serverPromise;
     const result = await server(event, context);
 
-    // Ensure we always return a HandlerResponse, never void.
     return result || {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'OK' }),
+      statusCode: 404, // If no route is found, it's a 404
+      body: JSON.stringify({ message: 'Not Found' }),
     };
   } catch (error) {
     console.error('--- Handler Error ---', error);
-    // Return a generic error response
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'An error occurred in the handler.' }),
