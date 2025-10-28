@@ -1,4 +1,4 @@
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -6,7 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
     constructor(
-        @Inject(UserService) private readonly userService: UserService,
+        @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
         private jwtService: JwtService
     ){}
 
