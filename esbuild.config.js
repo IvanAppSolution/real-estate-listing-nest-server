@@ -1,5 +1,4 @@
 const esbuild = require('esbuild');
-const path = require('path');
 
 esbuild.build({
   entryPoints: ['netlify/functions/api.ts'],
@@ -11,7 +10,7 @@ esbuild.build({
   minify: false,
   sourcemap: true,
   external: [
-    // Native database drivers
+    // Native modules that cannot be bundled
     'pg-native',
     'better-sqlite3',
     'sqlite3',
@@ -20,18 +19,24 @@ esbuild.build({
     'mysql2',
     'oracledb',
     'pg-query-stream',
-    
-    // IMPORTANT: Add typeorm here
-    'typeorm',
 
-    // Optional NestJS modules
-    '@nestjs/microservices',
-    '@nestjs/websockets',
-    '@nestjs/platform-socket.io',
-    'cache-manager',
-    'class-transformer/storage',
+    // Optional NestJS microservice dependencies to exclude
+    'kafkajs',
+    'ioredis',
+    'nats',
+    'amqplib',
+    'amqp-connection-manager', // Often required along with amqplib
+    'mqtt',
+    'grpc',
+    '@grpc/grpc-js',
+    '@grpc/proto-loader',
   ],
-  // ... existing code ...
-}).then((result) => {
-// ... existing code ...
+  loader: {
+    '.ts': 'ts',
+  },
+  tsconfig: 'tsconfig.json',
+  logLevel: 'info',
+}).catch((error) => {
+  console.error('❌ Build failed:', error);
+  process.exit(1);
 });
