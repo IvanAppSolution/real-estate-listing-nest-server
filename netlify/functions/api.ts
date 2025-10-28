@@ -30,10 +30,32 @@ async function bootstrap(): Promise<Handler> {
 
   await nestApp.init();
 
-  return serverlessExpress({ app: expressApp });
+  // ** THE FIX **
+  // Add a custom event source mapping to correctly handle Netlify's event object.
+  return serverlessExpress({
+    app: expressApp,
+    eventSource: {
+      getRequest: (event: HandlerEvent) => {
+        return {
+          method: event.httpMethod,
+          path: event.path,
+          headers: event.headers,
+          body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
+          remoteAddress: event.headers['x-forwarded-for'] || '127.0.0.1',
+        };
+      },
+      getResponse: ({ statusCode, body, headers, isBase64Encoded }) => {
+        return {
+          statusCode,
+          body,
+          headers,
+          isBase64Encoded,
+        };
+      },
+    },
+  });
 }
 
-// This async/await structure correctly handles the types.
 export const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext,
@@ -42,12 +64,8 @@ export const handler: Handler = async (
     cachedServer = await bootstrap();
   }
 
-  // Await the handler's response. It could be a HandlerResponse or void.
   const response = await cachedServer(event, context);
 
-  // Explicitly check for a non-void response before returning.
-  // If the response is void, the function implicitly returns undefined,
-  // which satisfies the `void` part of the Handler's return type.
   if (response) {
     return response;
   }
