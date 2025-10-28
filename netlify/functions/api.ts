@@ -2,14 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from '../../src/app.module';
 import { ValidationPipe } from '@nestjs/common';
-import type { Handler, HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions';
-import serverlessExpress from '@vendia/serverless-express';
+import type { HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions';
+import serverless from 'serverless-http';
 import express, { json, urlencoded } from 'express';
 
-const serverPromise = bootstrap();
+// Define a precise Netlify handler type
+type NetlifyHandler = (event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse>;
 
-async function bootstrap(): Promise<Handler> {
-  console.log('Bootstrap function starting...');
+let cachedServer: NetlifyHandler | null = null;
+
+async function bootstrap(): Promise<NetlifyHandler> {
   const expressApp = express();
 
   expressApp.use(json({ limit: '10mb' }));
@@ -21,63 +23,30 @@ async function bootstrap(): Promise<Handler> {
     { bodyParser: false }
   );
 
-  nestApp.setGlobalPrefix('api');
+  // No global prefix; basePath will strip Netlify’s prefix
   nestApp.enableCors();
   nestApp.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   await nestApp.init();
-  console.log('NestJS app initialized.');
 
-  return serverlessExpress({
-    app: expressApp,
-    eventSource: {
-      getRequest: (event: HandlerEvent) => {
-        // ** THE FIX **
-        // The path from Netlify includes the function path, which we need to remove.
-        // Example: "/.netlify/functions/api/health" -> "/health"
-        // Since your global prefix is 'api', the final path passed to NestJS will be correct.
-        const path = event.path.replace('/.netlify/functions/api', '');
+  // Cast serverless-http wrapper to our NetlifyHandler type
+  const handler = serverless(expressApp, {
+    basePath: '/.netlify/functions/api',
+  }) as unknown as NetlifyHandler;
 
-        return {
-          method: event.httpMethod,
-          path: path || '/', // Ensure path is at least "/"
-          headers: event.headers,
-          body: event.isBase64Encoded ? Buffer.from(event.body ?? '', 'base64') : event.body,
-          remoteAddress: event.headers['x-forwarded-for'] || '127.0.0.1',
-        };
-      },
-      getResponse: ({ statusCode, body, headers, isBase64Encoded }) => {
-        return {
-          statusCode,
-          body,
-          headers,
-          isBase64Encoded,
-        };
-      },
-    },
-  });
+  return handler;
 }
 
-export const handler = async (
+export const handler: NetlifyHandler = async (
   event: HandlerEvent,
   context: HandlerContext,
 ): Promise<HandlerResponse> => {
-  console.log('--- Handler Invoked ---');
-  console.log('EVENT:', JSON.stringify(event, null, 2));
-
-  try {
-    const server = await serverPromise;
-    const result = await server(event, context);
-
-    return result || {
-      statusCode: 404, // If no route is found, it's a 404
-      body: JSON.stringify({ message: 'Not Found' }),
-    };
-  } catch (error) {
-    console.error('--- Handler Error ---', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'An error occurred in the handler.' }),
-    };
+  if (!cachedServer) {
+    cachedServer = await bootstrap();
   }
+
+  const result = await cachedServer(event, context);
+
+  // Ensure a valid HandlerResponse is always returned
+  return result ?? { statusCode: 500, body: JSON.stringify({ message: 'Unknown error' }) };
 };
