@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "declaration": true,
+    "declaration": false, // Change this to false
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -17,7 +17,6 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    // This is the most important flag for fixing import issues
     "esModuleInterop": true
   },
   "include": ["src/**/*", "netlify/**/*"],
