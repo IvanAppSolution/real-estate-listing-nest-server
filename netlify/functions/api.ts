@@ -6,13 +6,12 @@ import type { Handler, HandlerEvent, HandlerContext, HandlerResponse } from '@ne
 import serverlessExpress from '@vendia/serverless-express';
 import express, { json, urlencoded } from 'express';
 
-let cachedServer: Handler;
+// Initialize the server promise outside of the handler
+// This ensures bootstrap is only called once when the function is loaded.
+const serverPromise = bootstrap();
 
 async function bootstrap(): Promise<Handler> {
-  if (cachedServer) {
-    return cachedServer;
-  }
-
+  console.log('Bootstrap function starting...');
   const expressApp = express();
 
   expressApp.use(json({ limit: '10mb' }));
@@ -29,9 +28,8 @@ async function bootstrap(): Promise<Handler> {
   nestApp.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   await nestApp.init();
+  console.log('NestJS app initialized.');
 
-  // ** THE FIX **
-  // Add a custom event source mapping to correctly handle Netlify's event object.
   return serverlessExpress({
     app: expressApp,
     eventSource: {
@@ -56,17 +54,31 @@ async function bootstrap(): Promise<Handler> {
   });
 }
 
-export const handler: Handler = async (
+// Fix: Remove the Handler type from the left side and add explicit return type on the right side.
+export const handler = async (
   event: HandlerEvent,
   context: HandlerContext,
-) => {
-  if (!cachedServer) {
-    cachedServer = await bootstrap();
-  }
+): Promise<HandlerResponse> => {
+  // ** THE DEBUGGING STEP **
+  // Log the incoming event to see its structure in Netlify logs.
+  console.log('--- Handler Invoked ---');
+  console.log('EVENT:', JSON.stringify(event, null, 2));
 
-  const response = await cachedServer(event, context);
+  try {
+    const server = await serverPromise;
+    const result = await server(event, context);
 
-  if (response) {
-    return response;
+    // Ensure we always return a HandlerResponse, never void.
+    return result || {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'OK' }),
+    };
+  } catch (error) {
+    console.error('--- Handler Error ---', error);
+    // Return a generic error response
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'An error occurred in the handler.' }),
+    };
   }
 };
