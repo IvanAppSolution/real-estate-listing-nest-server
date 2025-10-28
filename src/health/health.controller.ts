@@ -1,9 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
-import { Public } from '../auth/auth.guard';
+import { AllowPublic } from 'src/auth/decorators/allow-public.decorator';
+ 
 
 @Controller('health')
 export class HealthController {
-  @Public()
+  @AllowPublic()
   @Get()
   check() {
     return {
@@ -16,7 +17,7 @@ export class HealthController {
     };
   }
 
-  @Public()
+  @AllowPublic()
   @Get('db')
   async checkDatabase() {
     // You can add database connection check here if needed
