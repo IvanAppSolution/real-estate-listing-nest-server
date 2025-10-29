@@ -11,7 +11,7 @@ export class ListService{
         private listRepository: Repository<List>,
     ){}
 
-    async getAllList() {
+    public async getAllList() {
         return {
             success: true,
             data: await this.listRepository.find({})

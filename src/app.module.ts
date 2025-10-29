@@ -1,22 +1,31 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from './user/user.module';
-import { ListModule } from './list/list.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import { APP_GUARD, Reflector } from '@nestjs/core'; // <-- Import Reflector
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { APP_GUARD, Reflector } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
-import { JwtService } from '@nestjs/jwt'; // <-- Import JwtService
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HealthController } from './health/health.controller';
 import { User } from './user/user.entity';
 import { List } from './list/list.entity';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { ListModule } from './list/list.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    JwtModule.registerAsync({
+      global: true, // <-- ADD THIS LINE TO MAKE JWT SERVICES AVAILABLE EVERYWHERE
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '5h' },
+      }),
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
