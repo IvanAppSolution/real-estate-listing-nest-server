@@ -30,19 +30,31 @@ import { ListModule } from './list/list.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
-        entities: [User, List],
-        synchronize: configService.get<string>('NODE_ENV') !== 'production',
-        ssl: configService.get<string>('NODE_ENV') === 'production' 
-          ? { rejectUnauthorized: false } 
-          : false,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        
+        const dbConfig = {
+          type: 'postgres' as const,
+          host: configService.get<string>('DB_HOST'),
+          port: configService.get<number>('DB_PORT'),
+          username: configService.get<string>('DB_USERNAME'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_DATABASE'),
+          entities: [User, List],
+          synchronize: !isProduction,
+          ssl: isProduction 
+            ? { rejectUnauthorized: false } 
+            : false,
+        };
+
+        console.log('--- DATABASE CONNECTION CONFIG ---');
+        console.log('Host:', dbConfig.host);
+        console.log('Is Production:', isProduction);
+        console.log('SSL Enabled:', !!dbConfig.ssl);
+        console.log('---------------------------------');
+
+        return dbConfig;
+      },
     }),
     AuthModule,
     UserModule,
