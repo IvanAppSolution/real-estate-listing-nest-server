@@ -9,9 +9,9 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 // import { Profile } from 'src/profile/profile.entity';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([List]), CloudinaryModule],
   controllers: [ListController],
   providers: [ListService],
-  exports: [ListService],
-  imports: [TypeOrmModule.forFeature([List]), CloudinaryModule],
+  exports: [ListService],  
 })
 export class ListModule {}
