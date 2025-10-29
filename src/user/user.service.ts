@@ -14,11 +14,22 @@ export class UserService{
         private jwtService: JwtService
     ){}
 
+    public test() {
+        console.log('test UserService object!')
+    }
+
     public async getAllUsers() {
-        return {
-            success: true,
-            data: await this.userRepository.find({})
-        } 
+        try {        
+            this.test();
+            return {
+                success: true,
+                data: await this.userRepository.find({})
+            } 
+        }
+        catch (error) {
+            console.error('Error getAllUsers():', error);
+            throw error;
+        }
     }
 
     public async createUser(userDto: UserDto) {
