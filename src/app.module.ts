@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ListModule } from './list/list.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { AuthGuard } from './auth/auth.guard';
+// import { AuthGuard } from './auth/auth.guard';
+// import { APP_GUARD } from '@nestjs/core';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -59,11 +59,6 @@ import { HealthController } from './health/health.controller';
     CloudinaryModule,
   ],
   controllers: [HealthController],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-  ],
+  providers: [],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, ParseIntPipe, Delete, Put, Req, UnauthorizedException, UseInterceptors, UploadedFiles, ParseUUIDPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, ParseIntPipe, Delete, Put, Req, UnauthorizedException, UseInterceptors, UploadedFiles, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { ListService } from "./list.service";
 import { CreateListDto, UpdateListDto } from "./dto/list.dto";
 
@@ -6,8 +6,10 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { AllowPublic } from '../auth/decorators/allow-public.decorator';
 import { AuthRequest } from '../types';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('list')
+@UseGuards(AuthGuard)
 export class ListController{
   constructor(private listService: ListService, private readonly cloudinaryService: CloudinaryService){}
 
