@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { APP_GUARD, Reflector } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HealthController } from './health/health.controller';
@@ -53,12 +53,11 @@ import { ListModule } from './list/list.module';
   providers: [
     {
       provide: APP_GUARD,
-      inject: [JwtService, ConfigService, Reflector],
+      inject: [JwtService, ConfigService],
       useFactory: (
         jwtService: JwtService,
         configService: ConfigService,
-        reflector: Reflector,
-      ) => new AuthGuard(jwtService, configService, reflector),
+      ) => new AuthGuard(jwtService, configService),
     },
   ],
 })
