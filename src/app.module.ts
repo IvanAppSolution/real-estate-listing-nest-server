@@ -8,6 +8,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 // import { AuthGuard } from './auth/auth.guard';
 // import { APP_GUARD } from '@nestjs/core';
 import { HealthController } from './health/health.controller';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -59,6 +61,11 @@ import { HealthController } from './health/health.controller';
     CloudinaryModule,
   ],
   controllers: [HealthController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule {}
