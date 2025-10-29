@@ -1,59 +1,48 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { APP_GUARD, Reflector } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { HealthController } from './health/health.controller';
+import { User } from './user/user.entity';
+import { List } from './list/list.entity';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ListModule } from './list/list.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-// import { AuthGuard } from './auth/auth.guard';
-// import { APP_GUARD } from '@nestjs/core';
-import { HealthController } from './health/health.controller';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
+    }),
+    JwtModule.registerAsync({
+      global: true, // <-- ADD THIS LINE TO MAKE JWT SERVICES AVAILABLE EVERYWHERE
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '5h' },
+      }),
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const nodeEnv = configService.get('NODE_ENV');
-        const isProduction = nodeEnv === 'production';
-        
-        // Database configuration
-        const dbType = configService.get('DB_TYPE') || 'postgres';
-        const dbHost = configService.get('DB_HOST');
-        const dbPort = configService.get('DB_PORT');
-        const dbUsername = configService.get('DB_USERNAME');
-        const dbPassword = configService.get('DB_PASSWORD');
-        const dbName = configService.get('DB_NAME');
-        
-        // SSL configuration - only in production or if explicitly enabled
-        const sslEnabled = isProduction || configService.get('DB_SSL') === 'true';
-        
-        return {
-          type: dbType as any,
-          host: dbHost,
-          port: parseInt(dbPort, 10),
-          username: dbUsername,
-          password: dbPassword,
-          database: dbName,
-          autoLoadEntities: true,
-          synchronize: !isProduction,
-          logging: !isProduction,
-          ssl: sslEnabled ? {
-            rejectUnauthorized: false,
-          } : false,
-          extra: sslEnabled ? {
-            ssl: {
-              rejectUnauthorized: false,
-            },
-          } : {},
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+        entities: [User, List],
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        ssl: configService.get<string>('NODE_ENV') === 'production' 
+          ? { rejectUnauthorized: false } 
+          : false,
+      }),
     }),
     AuthModule,
     UserModule,
@@ -64,7 +53,12 @@ import { AuthGuard } from './auth/auth.guard';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: AuthGuard,
+      inject: [JwtService, ConfigService, Reflector],
+      useFactory: (
+        jwtService: JwtService,
+        configService: ConfigService,
+        reflector: Reflector,
+      ) => new AuthGuard(jwtService, configService, reflector),
     },
   ],
 })

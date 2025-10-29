@@ -1,12 +1,10 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-// import { AuthService } from "src/auth/auth.service";
 import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserDto } from "./dto/user.dto";
 import bcrypt from 'bcryptjs';
 import { JwtService } from "@nestjs/jwt";
-// import { Profile } from "src/profile/profile.entity";
 
 @Injectable()
 export class UserService{
@@ -14,12 +12,13 @@ export class UserService{
         @InjectRepository(User)
         private userRepository: Repository<User>,
         private jwtService: JwtService
-        // @InjectRepository(Profile)
-        // private profileRepository: Repository<Profile>
     ){}
 
-    getAllUsers(): Promise<User[]>{
-        return this.userRepository.find({})
+    public async getAllUsers() {
+        return {
+            success: true,
+            data: await this.userRepository.find({})
+        } 
     }
 
     public async createUser(userDto: UserDto) {
