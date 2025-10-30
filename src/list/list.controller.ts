@@ -6,10 +6,8 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { AllowPublic } from '../auth/decorators/allow-public.decorator';
 import { AuthRequest } from '../types';
-import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('list')
-@UseGuards(AuthGuard)
 export class ListController{
   constructor(private listService: ListService, private readonly cloudinaryService: CloudinaryService){}
 

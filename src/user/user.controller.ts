@@ -2,9 +2,8 @@ import { Body, Controller, Get, Param, Post, ParseIntPipe, Delete, Put, UseGuard
 import { UserService } from "./user.service";
 import { UserDto } from "./dto/user.dto";
 import { AllowPublic } from '../auth/decorators/allow-public.decorator';
-import { AuthGuard } from '../auth/auth.guard';
+
 @Controller('user')
-@UseGuards(AuthGuard)
 export class UserController{
     constructor(private userService: UserService){}
 
