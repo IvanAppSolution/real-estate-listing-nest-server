@@ -15,6 +15,7 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 import { IsValidPropertyType, IsValidPropertyStatus, IsValidCategory } from '../../common/validators/property.validators';
+import { UserDto } from "src/user/dto/user.dto";
 
 // Address DTO for nested object validation
 export class AddressDto {
@@ -71,24 +72,6 @@ export class ContactDto {
     others?: string;
  
 }
-
-export class UserDto {
-    @IsString()
-    id: string;
-
-    @IsOptional()
-    @IsString()
-    username?: string;
-
-    @IsOptional()
-    @IsEmail()
-    email?: string;
-
-    @IsOptional()
-    @IsString()
-    role?: string;
-}
-
 export class CreateListDto {
     @IsOptional()
     @IsString()

@@ -4,16 +4,19 @@ import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/user.module';
 // import { JwtModule } from '@nestjs/jwt';
 // import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthGuard } from './auth.guard';
+// import { AuthGuard } from './auth.guard';
+import authConfig from './config/auth.config';
+import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
-    // JwtModule is likely configured globally in app.module.ts,
-    // so it may not be needed here. But it doesn't hurt.
+    ConfigModule.forFeature(authConfig),
+    JwtModule.registerAsync(authConfig.asProvider())
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard],
-  exports: [AuthService, AuthGuard],
+  providers: [AuthService],
+  exports: [AuthService],
 })
 export class AuthModule {}

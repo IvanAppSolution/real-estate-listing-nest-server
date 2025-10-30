@@ -4,14 +4,12 @@ import { User } from "./user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserDto } from "./dto/user.dto";
 import bcrypt from 'bcryptjs';
-import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class UserService{
     constructor(
         @InjectRepository(User)
-        private userRepository: Repository<User>,
-        private jwtService: JwtService
+        private userRepository: Repository<User>
     ){}
 
     public test() {
@@ -34,26 +32,20 @@ export class UserService{
 
     public async createUser(userDto: UserDto) {
         //check the email if already exist or not. If not then create
-        const user = await this.userRepository.findOneBy({email: userDto.email});
+        const foundUser = await this.userRepository.findOneBy({email: userDto.email});
 
-        if (!user) {
+        if (!foundUser) {
             //Create User Object
-            const user = this.userRepository.create(userDto);
-            const hashedPassword = await bcrypt.hash(user.password, 10)
-            user.password = hashedPassword;
-
-            await this.userRepository.save(user);
-
-            const payload = { userId: user.id, username: user.username };
-
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { password, ...result } = user;
+            const user = this.userRepository.create({
+                ...userDto,
+                password: await bcrypt.hash(userDto.password, 10)
+            });
             
-            return { 
-                token: await this.jwtService.signAsync(payload,{expiresIn: '3d'}),
-                user: result,
-                success: true
-            }
+            await this.userRepository.save(user);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { password, createdAt, updatedAt, deleteAt, ...result } = user;
+            
+            return result;
 
         } else {
             throw new ConflictException('User with this email already exists.');
@@ -87,7 +79,7 @@ export class UserService{
         return await this.userRepository.findOneBy({ id })
     }
 
-    public async findUserByEmal(email: string){
+    public async findUserByEmail(email: string){
         return await this.userRepository.findOneBy({ email })
     }
 
