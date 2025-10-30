@@ -1,7 +1,5 @@
-import { Body, Controller,  Get,  HttpCode,  HttpStatus,  Post, Request, UseGuards } from '@nestjs/common';
-// import { Request as ExpressRequest } from 'express';
+import { Body, Controller, HttpCode,  HttpStatus,  Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-// import { AuthGuard } from './auth.guard';
 import { AllowPublic } from './decorators/allow-public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';

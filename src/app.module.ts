@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { APP_GUARD, Reflector } from '@nestjs/core'; // <-- 1. Import Reflector
-// import { AuthGuard } from './auth/auth.guard';
+import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HealthController } from './health/health.controller';
 import { User } from './user/user.entity';
