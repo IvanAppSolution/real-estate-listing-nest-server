@@ -6,30 +6,25 @@ import type { HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/fun
 import serverless from 'serverless-http';
 import express, { json, urlencoded } from 'express';
 
-// Define a precise Netlify handler type
 type NetlifyHandler = (event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse>;
 
 let cachedServer: NetlifyHandler | null = null;
 
 async function bootstrap(): Promise<NetlifyHandler> {
+  // Ensure we use the correct adapter and avoid unnecessary body parsing
   const expressApp = express();
-
-  expressApp.use(json({ limit: '10mb' }));
-  expressApp.use(urlencoded({ extended: true, limit: '10mb' }));
-
   const nestApp = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressApp),
     { bodyParser: false }
   );
 
-  // No global prefix; basePath will strip Netlify’s prefix
+  // Apply validation pipes and other global configurations
   nestApp.enableCors();
   nestApp.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   await nestApp.init();
 
-  // Cast serverless-http wrapper to our NetlifyHandler type
   const handler = serverless(expressApp, {
     basePath: '/.netlify/functions/api',
   }) as unknown as NetlifyHandler;
@@ -41,12 +36,22 @@ export const handler: NetlifyHandler = async (
   event: HandlerEvent,
   context: HandlerContext,
 ): Promise<HandlerResponse> => {
-  if (!cachedServer) {
-    cachedServer = await bootstrap();
+  // Use a try/finally block for robust resource cleanup
+  try {
+    if (!cachedServer) {
+      cachedServer = await bootstrap();
+    }
+    const result = await cachedServer(event, context);
+    return result ?? { statusCode: 500, body: JSON.stringify({ message: 'Unknown error' }) };
+  } catch (error) {
+    console.error('Unhandled error in Netlify function:', error);
+    // Return a generic error response for the client
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Internal server error' }),
+    };
   }
-
-  const result = await cachedServer(event, context);
-
-  // Ensure a valid HandlerResponse is always returned
-  return result ?? { statusCode: 500, body: JSON.stringify({ message: 'Unknown error' }) };
+  // This can be useful for functions with persistent connections, but use with caution
+  // in NestJS/Express apps where connections are managed internally.
+  // context.callbackWaitsForEmptyEventLoop = false;
 };
