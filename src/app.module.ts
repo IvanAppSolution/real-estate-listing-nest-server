@@ -24,7 +24,7 @@ import { AuthorizeGuard } from './auth/guards/authorize.guard';
       isGlobal: true,
       envFilePath: '.env',
       load: [appConfig, databaseConfig, authConfig],
-      validationSchema: envValidator
+      validationSchema: envValidator,
     }),
     JwtModule.registerAsync(authConfig.asProvider()),
     TypeOrmModule.forRootAsync({
@@ -65,10 +65,11 @@ import { AuthorizeGuard } from './auth/guards/authorize.guard';
   controllers: [AppController, HealthController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthorizeGuard
-    },
+    // ** TEMPORARILY COMMENT OUT THE GLOBAL GUARD **
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthorizeGuard,
+    // },
   ],
 })
 export class AppModule {}
