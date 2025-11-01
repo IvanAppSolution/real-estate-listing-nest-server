@@ -4,41 +4,45 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../../src/app.module';
 import serverless from 'serverless-http';
 import { Handler } from '@netlify/functions';
-import express, { Express } from 'express';
+import express from 'express';
 
 let cachedServer: any;
 
 async function bootstrapServer(): Promise<any> {
-  const expressApp: Express = express();
+  console.log('Step 1: Creating Express app...');
+  const expressApp = express();
   
-  console.log('Step 1: Creating NestJS app...');
+  console.log('Step 2: Creating NestJS app...');
+  const adapter = new ExpressAdapter(expressApp);
   
   const app: INestApplication = await NestFactory.create(
     AppModule,
-    new ExpressAdapter(expressApp),
+    adapter,
     { 
-      logger: console,
+      logger: ['error', 'warn', 'log'],
       abortOnError: false
     }
   );
 
-  console.log('Step 2: NestJS app created successfully');
-
+  console.log('Step 3: Configuring NestJS app...');
   app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  console.log('Step 3: Starting app.init()...');
-  
+  console.log('Step 4: Initializing NestJS app...');
   await app.init();
 
-  console.log('Step 4: app.init() completed successfully');
-
-  // Use serverless-http instead of @codegenie/serverless-express
-  const handler = serverless(expressApp);
+  console.log('Step 5: Getting HTTP server...');
+  // Get the underlying HTTP server from NestJS
+  const httpAdapter = app.getHttpAdapter();
+  const instance = httpAdapter.getInstance();
   
-  console.log('Step 5: Serverless handler created');
-
+  console.log('Step 6: Creating serverless handler...');
+  const handler = serverless(instance, {
+    binary: ['image/*', 'application/octet-stream']
+  });
+  
+  console.log('Step 7: Bootstrap complete');
   return handler;
 }
 
@@ -46,6 +50,7 @@ export const handler: Handler = async (event, context) => {
   try {
     console.log('=== HANDLER CALLED ===');
     console.log('Path:', event.path);
+    console.log('Method:', event.httpMethod);
     
     if (!cachedServer) {
       console.log('=== COLD START: Bootstrapping server ===');
@@ -54,15 +59,19 @@ export const handler: Handler = async (event, context) => {
     }
 
     console.log('=== Calling cached server ===');
-    return await cachedServer(event, context);
+    const result = await cachedServer(event, context);
+    console.log('=== Request completed ===');
+    return result;
   } catch (error) {
     console.error('=== TOP LEVEL HANDLER ERROR ===');
-    console.error('Error:', error);
+    console.error('Error name:', error?.constructor?.name);
+    console.error('Error message:', error?.message);
+    console.error('Error stack:', error?.stack);
     
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: 'Server initialization failed',
+        error: 'Server error',
         message: error?.message || 'Unknown error',
       })
     };
