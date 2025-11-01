@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../../src/app.module';
-import serverlessExpress from '@codegenie/serverless-express';
+import serverless from 'serverless-http';
 import { Handler } from '@netlify/functions';
 import express, { Express } from 'express';
 
@@ -18,15 +18,9 @@ async function bootstrapServer(): Promise<any> {
     new ExpressAdapter(expressApp),
     { 
       logger: console,
-      abortOnError: false  // Don't exit the process on error
+      abortOnError: false
     }
-  ).catch((error) => {
-    console.error('FATAL ERROR during NestFactory.create:');
-    console.error('Error name:', error?.name);
-    console.error('Error message:', error?.message);
-    console.error('Error stack:', error?.stack);
-    throw error;
-  });
+  );
 
   console.log('Step 2: NestJS app created successfully');
 
@@ -36,17 +30,12 @@ async function bootstrapServer(): Promise<any> {
 
   console.log('Step 3: Starting app.init()...');
   
-  await app.init().catch((error) => {
-    console.error('FATAL ERROR during app.init():');
-    console.error('Error name:', error?.name);
-    console.error('Error message:', error?.message);
-    console.error('Error stack:', error?.stack);
-    throw error;
-  });
+  await app.init();
 
   console.log('Step 4: app.init() completed successfully');
 
-  const handler = serverlessExpress({ app: expressApp });
+  // Use serverless-http instead of @codegenie/serverless-express
+  const handler = serverless(expressApp);
   
   console.log('Step 5: Serverless handler created');
 
@@ -68,17 +57,13 @@ export const handler: Handler = async (event, context) => {
     return await cachedServer(event, context);
   } catch (error) {
     console.error('=== TOP LEVEL HANDLER ERROR ===');
-    console.error('Error type:', typeof error);
-    console.error('Error name:', error?.constructor?.name);
-    console.error('Error message:', error?.message);
-    console.error('Error stack:', error?.stack);
+    console.error('Error:', error);
     
     return {
       statusCode: 500,
       body: JSON.stringify({
         error: 'Server initialization failed',
         message: error?.message || 'Unknown error',
-        type: error?.constructor?.name || 'UnknownError'
       })
     };
   }
