@@ -81,7 +81,7 @@ export class AuthService {
             ...payload
         }, {
             secret: this.authConfiguration.secret,
-            expiresIn: expiresIn
+            expiresIn: '1h'
             // audience: this.authConfiguration.audience,
             // issuer: this.authConfiguration.issuer
         });
