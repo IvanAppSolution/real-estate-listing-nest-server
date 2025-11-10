@@ -59,9 +59,9 @@ export class AuthService {
         try {
             //1. VERIFY THE REFRESH TOKEN
             const { id } = await this.jwtService.verifyAsync(refreshTokenDto.refreshToken, {
-                secret: this.authConfiguration.secret,
-                audience: this.authConfiguration.audience,
-                issuer: this.authConfiguration.issuer
+                secret: this.authConfiguration.secret
+                // audience: this.authConfiguration.audience,
+                // issuer: this.authConfiguration.issuer
             })
 
             //2. FIND THE USER FROM DB USING USER ID
@@ -81,9 +81,9 @@ export class AuthService {
             ...payload
         }, {
             secret: this.authConfiguration.secret,
-            expiresIn: expiresIn,
-            audience: this.authConfiguration.audience,
-            issuer: this.authConfiguration.issuer
+            expiresIn: expiresIn
+            // audience: this.authConfiguration.audience,
+            // issuer: this.authConfiguration.issuer
         });
     }
 
