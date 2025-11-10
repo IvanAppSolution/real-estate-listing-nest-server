@@ -75,13 +75,13 @@ export class AuthService {
 
     }
 
-    private async signToken<T>(userId: string, expiresIn: number, payload?: T) {
+    private async signToken<T>(userId: string, expiresIn: number | string, payload?: T) {
         return await this.jwtService.signAsync({
             id: userId,
             ...payload
         }, {
             secret: this.authConfiguration.secret,
-            expiresIn: expiresIn
+            expiresIn: '1h'
             // audience: this.authConfiguration.audience,
             // issuer: this.authConfiguration.issuer
         });
