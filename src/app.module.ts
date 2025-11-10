@@ -65,11 +65,10 @@ import { AuthorizeGuard } from './auth/guards/authorize.guard';
   controllers: [AppController, HealthController],
   providers: [
     AppService,
-    // ** TEMPORARILY COMMENT OUT THE GLOBAL GUARD **
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AuthorizeGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: AuthorizeGuard,
+    },
   ],
 })
 export class AppModule {}

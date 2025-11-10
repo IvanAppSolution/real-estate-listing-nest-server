@@ -56,13 +56,14 @@ export class ListController{
     @Req() request: AuthRequest
   ) {
     try {
+      console.log('list-update-1')
       const user = request.user;
-
+      console.log('list-update-user:',user)
       // Parse JSON string to object
       const listData = typeof listDataString === 'string' 
         ? JSON.parse(listDataString) 
         : listDataString;
-      
+      console.log('list-update-listData:',listData)
       // Remove fields that shouldn't be updated
       const { user: _user, userId: _userId, ...updateData } = listData;
       
@@ -84,6 +85,7 @@ export class ListController{
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 files
   async uploadImage(@UploadedFiles() files: Express.Multer.File[]) {
     try {
+      console.log('media/upload')
       const results = await this.cloudinaryService.uploadMultipleFiles(files);
 
       return {
