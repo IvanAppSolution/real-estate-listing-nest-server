@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, forwardRef, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express"; 
@@ -27,11 +27,11 @@ export class AuthorizeGuard implements CanActivate{
 
 
         //1. EXTRACT REQUEST FROM EXECUTION CONTEXT
-        const request: Request = context.switchToHttp().getRequest();
+        const request = context.switchToHttp().getRequest();
 
         //2. EXTRACT TOKEN FROM THE REQUEST HEADER
         //Bearer actual-json-we-token = ['Bearer', 'actual-json-we-token']
-        const token = request.headers.authorization?.split(' ')[1];
+        const token = request.headers?.authorization?.split(' ')[1];
 
         //3. VALIDATE TOKEN AND PROVIDE / DENY ACCESS
         if(!token){
