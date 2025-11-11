@@ -103,7 +103,7 @@ export class AuthService {
         //GENERATE A REFRESH TOKEN
         const refreshToken = await this.signToken({id: user.id, email: user.email }, 48000);
 
-        return { token: 'accessToken', refreshToken: 'token' };
+        return { token: accessToken, refreshToken };
     }
     
 }
