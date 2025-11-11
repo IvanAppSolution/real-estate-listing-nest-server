@@ -9,7 +9,6 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ActiveUserType } from './interfaces/active-user-type.interface';
 import { User } from '../user/user.entity';
 import { UserDto } from 'src/user/dto/user.dto';
-import { SignOptions } from 'jsonwebtoken';
  
 @Injectable()
 export class AuthService {
@@ -86,9 +85,9 @@ export class AuthService {
         //     // audience: this.authConfiguration.audience,
         //     // issuer: this.authConfiguration.issuer
         // });
-        const options: SignOptions = {
-            expiresIn: this.authConfiguration.expiresIn, // TypeScript will now accept this
-            };
+        // const options: SignOptions = {
+        //     expiresIn: this.authConfiguration.expiresIn, // TypeScript will now accept this
+        //     };
         const p = { id: payload.id, email: payload.email };
         return await this.jwtService.signAsync(p, {
             expiresIn: expiresIn as number, // Token expiration time (e.g., 1 hour)
