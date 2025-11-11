@@ -9,6 +9,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ActiveUserType } from './interfaces/active-user-type.interface';
 import { User } from '../user/user.entity';
 import { UserDto } from 'src/user/dto/user.dto';
+import { SignOptions } from 'jsonwebtoken';
  
 @Injectable()
 export class AuthService {
@@ -85,10 +86,12 @@ export class AuthService {
         //     // audience: this.authConfiguration.audience,
         //     // issuer: this.authConfiguration.issuer
         // });
-
+        const options: SignOptions = {
+            expiresIn: this.authConfiguration.expiresIn, // TypeScript will now accept this
+            };
         const p = { id: payload.id, email: payload.email };
         return await this.jwtService.signAsync(p, {
-            expiresIn: expiresIn as any, // Token expiration time (e.g., 1 hour)
+            expiresIn: expiresIn as number, // Token expiration time (e.g., 1 hour)
             secret: this.authConfiguration.secret, // Use a strong secret from environment variables
         });
 
@@ -96,12 +99,12 @@ export class AuthService {
 
     private async generateToken(user: User) {
         //GENERATE AN ACCESS TOKEN
-        const accessToken = await this.signToken({id: user.id, email: user.email }, '1h');
+        // const accessToken = await this.signToken({id: user.id, email: user.email }, 36000);
 
-        //GENERATE A REFRESH TOKEN
-        const refreshToken = await this.signToken({id: user.id, email: user.email }, '4h');
+        // //GENERATE A REFRESH TOKEN
+        // const refreshToken = await this.signToken({id: user.id, email: user.email }, 48000);
 
-        return { token: accessToken, refreshToken };
+        // return { token: accessToken, refreshToken };
     }
     
 }
