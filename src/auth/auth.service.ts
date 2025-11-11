@@ -99,12 +99,12 @@ export class AuthService {
 
     private async generateToken(user: User) {
         //GENERATE AN ACCESS TOKEN
-        // const accessToken = await this.signToken({id: user.id, email: user.email }, 36000);
+        const accessToken = await this.signToken({id: user.id, email: user.email }, 36000);
 
-        // //GENERATE A REFRESH TOKEN
-        // const refreshToken = await this.signToken({id: user.id, email: user.email }, 48000);
+        //GENERATE A REFRESH TOKEN
+        const refreshToken = await this.signToken({id: user.id, email: user.email }, 48000);
 
-        // return { token: accessToken, refreshToken };
+        return { token: 'accessToken', refreshToken: 'token' };
     }
     
 }
