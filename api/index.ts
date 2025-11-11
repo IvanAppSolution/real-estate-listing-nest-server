@@ -1,14 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import express, { Request, Response } from 'express';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 
-// Import AppModule - adjust path based on your build output
-let cachedApp: any = null;
+let cachedServer: any = null;
 
 async function bootstrap() {
-  if (cachedApp) {
-    return cachedApp;
+  if (cachedServer) {
+    return cachedServer;
   }
 
   console.log('Bootstrapping NestJS app...');
@@ -16,14 +14,10 @@ async function bootstrap() {
   // Dynamically import the compiled AppModule
   const { AppModule } = await import('../dist/app.module.js');
 
-  // Create a fresh Express instance for each bootstrap
-  const expressApp = express();
-
-  const app = await NestFactory.create(
-    AppModule,
-    new ExpressAdapter(expressApp),
-    { logger: ['error', 'warn', 'log'] }
-  );
+  // Create NestJS app without custom Express adapter
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn', 'log']
+  });
 
   app.setGlobalPrefix('api');
   app.enableCors();
@@ -38,17 +32,21 @@ async function bootstrap() {
 
   console.log('NestJS app initialized successfully');
 
-  cachedApp = expressApp;
-  return expressApp;
+  // Get the underlying HTTP server
+  const server = app.getHttpServer();
+  cachedServer = server;
+  
+  return server;
 }
 
-export default async (req: Request, res: Response) => {
+export default async (req: any, res: any) => {
   try {
-    const app = await bootstrap();
-    return app(req, res);
+    const server = await bootstrap();
+    // Let the HTTP server handle the request
+    server.emit('request', req, res);
   } catch (error) {
-    console.error('Error bootstrapping app:', error);
-    return res.status(500).json({
+    console.error('Error handling request:', error);
+    res.status(500).json({
       error: 'Internal Server Error',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
