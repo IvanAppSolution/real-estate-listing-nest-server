@@ -86,10 +86,10 @@ export class AuthService {
         //     // issuer: this.authConfiguration.issuer
         // });
 
-        // const payload = { userId: user.id, username: user.username };
-        return await this.jwtService.signAsync(payload, {
+        const p = { id: payload.id, email: payload.email };
+        return await this.jwtService.signAsync(p, {
             expiresIn: expiresIn as any, // Token expiration time (e.g., 1 hour)
-            secret: process.env.JWT_SECRET, // Use a strong secret from environment variables
+            secret: this.authConfiguration.secret, // Use a strong secret from environment variables
         });
 
     }
