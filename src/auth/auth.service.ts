@@ -75,24 +75,31 @@ export class AuthService {
 
     }
 
-    private async signToken<T>(userId: string, expiresIn: number | string, payload?: T) {
-        return await this.jwtService.signAsync({
-            id: userId,
-            ...payload
-        }, {
-            secret: this.authConfiguration.secret,
-            expiresIn: expiresIn as any  // Cast to bypass the type issue
-            // audience: this.authConfiguration.audience,
-            // issuer: this.authConfiguration.issuer
+    private async signToken(payload: Record<string, any>, expiresIn: (number | string)) {
+        // return await this.jwtService.signAsync({
+        //     id: userId,
+        //     ...payload
+        // }, {
+        //     secret: this.authConfiguration.secret,
+        //     expiresIn: expiresIn as any  // Cast to bypass the type issue
+        //     // audience: this.authConfiguration.audience,
+        //     // issuer: this.authConfiguration.issuer
+        // });
+
+        // const payload = { userId: user.id, username: user.username };
+        return await this.jwtService.signAsync(payload, {
+            expiresIn: expiresIn as any, // Token expiration time (e.g., 1 hour)
+            secret: process.env.JWT_SECRET, // Use a strong secret from environment variables
         });
+
     }
 
     private async generateToken(user: User) {
         //GENERATE AN ACCESS TOKEN
-        const accessToken = await this.signToken<Partial<ActiveUserType>>(user.id, this.authConfiguration.expiresIn, { id: user.id, email: user.email })
+        const accessToken = await this.signToken({id: user.id, email: user.email }, '1h');
 
         //GENERATE A REFRESH TOKEN
-        const refreshToken = await this.signToken(user.id, this.authConfiguration.refreshTokenExpiresIn);
+        const refreshToken = await this.signToken({id: user.id, email: user.email }, '4h');
 
         return { token: accessToken, refreshToken };
     }
