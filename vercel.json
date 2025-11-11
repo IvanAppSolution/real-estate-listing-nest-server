@@ -1,11 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "dist/main.js",
-      "use": "@vercel/node"
-    }
-  ],
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm run start:dev",
+  "installCommand": "pnpm install",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",

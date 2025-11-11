@@ -1,14 +1,21 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
+
+// Import the compiled AppModule from dist
+const getAppModule = async () => {
+  const { AppModule } = await import('../dist/app.module');
+  return AppModule;
+};
 
 const expressApp = express();
 let isInitialized = false;
 
 async function bootstrap() {
   if (!isInitialized) {
+    const AppModule = await getAppModule();
+    
     const app = await NestFactory.create(
       AppModule,
       new ExpressAdapter(expressApp),
